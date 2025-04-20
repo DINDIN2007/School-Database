@@ -1,0 +1,9 @@
+C:/Users/dinhv/ICS4U/School_Database/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/CMakeFiles/School_Database.dir
+C:/Users/dinhv/ICS4U/School_Database/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
+C:/Users/dinhv/ICS4U/School_Database/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
+C:/Users/dinhv/ICS4U/School_Database/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/CMakeFiles/list_install_components.dir
+C:/Users/dinhv/ICS4U/School_Database/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/CMakeFiles/install.dir
+C:/Users/dinhv/ICS4U/School_Database/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/CMakeFiles/install/local.dir
+C:/Users/dinhv/ICS4U/School_Database/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/CMakeFiles/install/strip.dir
+C:/Users/dinhv/ICS4U/School_Database/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/CMakeFiles/School_Database_autogen_timestamp_deps.dir
+C:/Users/dinhv/ICS4U/School_Database/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/CMakeFiles/School_Database_autogen.dir
