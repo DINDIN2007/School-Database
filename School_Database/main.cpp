@@ -66,15 +66,13 @@ int main(int argc, char *argv[]) {
     gradeSelection->addItem("12");
     gradeSelection->setCurrentIndex(-1);
 
-    QComboBox *teachableSelection = w.findChild<QComboBox *>("teachable");
+    // Current Teachable Classes Available
     QStringList classes = {
         "English", "Math", "Biology", "History", "Physical Education", "Chemistry", "Physics", "Foreigh Language", "Health Education", "Computer Science"
     };
 
-    for (int i = 0; i < 10; i++) {
-        teachableSelection->addItem(classes[i]);
-    }
-
+    QComboBox *teachableSelection = w.findChild<QComboBox *>("teachable");
+    for (int i = 0; i < 10; i++) teachableSelection->addItem(classes[i]);
     teachableSelection->hide();
     teachableSelection->setCurrentIndex(-1);
 
@@ -85,12 +83,13 @@ int main(int argc, char *argv[]) {
     int *itemCount = new int(0);  // Store count dynamically to modify in lambda
     Person *selectedPerson = nullptr;
 
-    QStringList firstNames = {
+    // Creating Random Students and Teachers
+    QStringList randomFirstNames = {
         "John", "Jane", "Alex", "Chris", "Emily", "Katie", "Michael", "Sarah", "David", "Rachel",
         "James", "Olivia", "Mason", "Isabella", "Liam", "Sophia", "Benjamin", "Amelia", "Ethan", "Charlotte"
     };
 
-    QStringList lastNames = {
+    QStringList randomLastNames = {
         "Smith", "Johnson", "Brown", "Williams", "Jones", "Davis", "Miller", "Wilson", "Moore", "Taylor",
         "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia", "Martinez", "Roberts"
     };
@@ -104,13 +103,12 @@ int main(int argc, char *argv[]) {
 
     // Adding 15 random students to the database
     for (int i = 0; i < 15; ++i) {
-        QString firstName = firstNames[i];
-        QString lastName = lastNames[i];
+        QString firstName = randomFirstNames[i];
+        QString lastName = randomLastNames[i];
         QString address = QString::number(rand() % 2000 + 1) + " " + randomAddresses[i];
 
         // Create a new student with random data
         std::string studentId = "S" + std::to_string(rand() % 89999 + 10000) + std::to_string(rand() % 8999 + 1000);
-        std::cout << studentId << std::endl;
         Person *newStudent = new Student(firstName.toStdString(), lastName.toStdString(), address.toStdString(), rand() % 4 + 9, studentId);
 
         // Add the new student to the school database
@@ -128,16 +126,10 @@ int main(int argc, char *argv[]) {
             personIdBox->setText(QString::fromStdString((selectedPerson->getId())));
 
             if (typeid(*selectedPerson) == typeid(Student)) {
-                Student* s = dynamic_cast<Student *>(selectedPerson);
-                lateTextBox->setText(QString::number(s->getNumLates()));
-                gradeSelection->setCurrentIndex(dynamic_cast<Student *>(selectedPerson)->getGrade() - 9);
-
                 studentButton->setChecked(true);
                 teacherButton->setChecked(false);
             }
             else {
-                teachableSelection->setCurrentText(QString::fromStdString(dynamic_cast<Teacher *>(selectedPerson)->getTeachables()));
-
                 teacherButton->setChecked(true);
                 studentButton->setChecked(false);
             }
@@ -153,8 +145,8 @@ int main(int argc, char *argv[]) {
 
     // Adding 5 random teachers to the database
     for (int i = 15; i < 20; ++i) {
-        QString firstName = firstNames[i];
-        QString lastName = lastNames[i];
+        QString firstName = randomFirstNames[i];
+        QString lastName = randomLastNames[i];
         QString address = QString::number(rand() % 2000 + 1) + " " + randomAddresses[i];
 
         // Create a new student with random data
@@ -175,16 +167,10 @@ int main(int argc, char *argv[]) {
             personIdBox->setText(QString::fromStdString((selectedPerson->getId())));
 
             if (typeid(*selectedPerson) == typeid(Student)) {
-                Student* s = dynamic_cast<Student *>(selectedPerson);
-                lateTextBox->setText(QString::number(s->getNumLates()));
-                gradeSelection->setCurrentIndex(dynamic_cast<Student *>(selectedPerson)->getGrade() - 9);
-
                 studentButton->setChecked(true);
                 teacherButton->setChecked(false);
             }
             else {
-                teachableSelection->setCurrentText(QString::fromStdString(dynamic_cast<Teacher *>(selectedPerson)->getTeachables()));
-
                 teacherButton->setChecked(true);
                 studentButton->setChecked(false);
             }
@@ -199,7 +185,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    // Connect button click to add a new label
+    // Connect button click to add/edit a person's information
     QObject::connect(addButton, &QPushButton::clicked, [=, &schoolDataBase, &selectedPerson, &w]() mutable {
         (*itemCount)++;  // Increment item count
         QString firstName = firstNameBox->toPlainText();
@@ -213,6 +199,7 @@ int main(int argc, char *argv[]) {
                 // Add it to the school database
                 Person *newPerson;
 
+                // Add a teacher
                 if (teacherButton->isChecked()) {
                     std::string teachable = teachableSelection->currentText().toStdString();
                     newPerson = !address.isEmpty()
@@ -223,6 +210,8 @@ int main(int argc, char *argv[]) {
                     t->setTeachables(teachableSelection->currentText().toStdString());
                     teachableSelection->setCurrentIndex(-1);
                 }
+
+                // Add a student
                 else {
                     int studentGrade = gradeSelection->currentText().toInt();
                     newPerson = !address.isEmpty()
@@ -234,16 +223,20 @@ int main(int argc, char *argv[]) {
                     gradeSelection->setCurrentIndex(-1);
                 }
 
+                // Add that person to the database
                 schoolDataBase.addPerson(newPerson);
 
+                // Add a new button for that person in the UI database
                 QString content = firstName + " " + lastName;
                 QPushButton *infoButton = new QPushButton(content);
 
+                // Clear the nameboxes for the next person
                 firstNameBox->clear();
                 lastNameBox->clear();
                 addressBox->clear();
                 personIdBox->clear();
 
+                // Add the methods linked to that person's button
                 QObject::connect(infoButton, &QPushButton::clicked, [=, &schoolDataBase, &selectedPerson]() mutable {
                     selectedPerson = schoolDataBase.findPerson(infoButton->text().toStdString());
                     firstNameBox->setText(QString::fromStdString((selectedPerson->getFirstName())));
@@ -252,16 +245,10 @@ int main(int argc, char *argv[]) {
                     personIdBox->setText(QString::fromStdString((selectedPerson->getId())));
 
                     if (typeid(*selectedPerson) == typeid(Student)) {
-                        Student* s = dynamic_cast<Student *>(selectedPerson);
-                        lateTextBox->setText(QString::number(s->getNumLates()));
-                        gradeSelection->setCurrentIndex(dynamic_cast<Student *>(selectedPerson)->getGrade() - 9);
-
                         studentButton->setChecked(true);
                         teacherButton->setChecked(false);
                     }
                     else {
-                        teachableSelection->setCurrentText(QString::fromStdString(dynamic_cast<Teacher *>(selectedPerson)->getTeachables()));
-
                         teacherButton->setChecked(true);
                         studentButton->setChecked(false);
                     }
@@ -275,19 +262,22 @@ int main(int argc, char *argv[]) {
                 layout->addWidget(infoButton);
             }
         }
-        // Otherwise, edit the information on a person
+        // Otherwise, if a person is selected, edit the information on a person
         else {
+            // Find the person and retain the information displayed
             QPushButton *buttonToEdit = w.findChild<QPushButton*>(selectedPerson->getFirstName() + " " + selectedPerson->getLastName());
             selectedPerson->setFirstName(firstName.toStdString());
             selectedPerson->setLastName(lastName.toStdString());
             selectedPerson->setAddress(address.toStdString());
 
+            // Custom UI if the person is a student
             if (typeid(*selectedPerson) == typeid(Student)) {
                 Student* s = dynamic_cast<Student *>(selectedPerson);
                 s->setGrade(gradeSelection->currentIndex() + 9);
                 s->setStudentId(personId.toStdString());
                 gradeSelection->setCurrentIndex(-1);
             }
+            // or a teacher
             else {
                 Teacher* t = dynamic_cast<Teacher *>(selectedPerson);
                 t->setTeachables(teachableSelection->currentText().toStdString());
@@ -295,32 +285,37 @@ int main(int argc, char *argv[]) {
                 teachableSelection->setCurrentIndex(-1);
             }
 
+            // Clear the boxes
             firstNameBox->clear();
             lastNameBox->clear();
             addressBox->clear();
             personIdBox->clear();
 
+            // Edit the button according to new information
             buttonToEdit->setText(QString::fromStdString(selectedPerson->getFirstName() + " " + selectedPerson->getLastName()));
             buttonToEdit->setObjectName(QString::fromStdString(selectedPerson->getFirstName() + " " + selectedPerson->getLastName()));
 
+            // Set the selected person to null (no one is selected)
             selectedPerson = nullptr;
         }
     });
 
+    // Connect methods to the remove person button
     QObject::connect(removeButton, &QPushButton::clicked, [=, &schoolDataBase, &selectedPerson, &w]() mutable {
         if (selectedPerson != nullptr) {
+            // Find the person and his button
             QString name = QString::fromStdString(selectedPerson->getFirstName() + " " + selectedPerson->getLastName());
-
             QPushButton *buttonToRemove = w.findChild<QPushButton*>(name);
 
+            // If the person exists, remove him from the school database and the UI database
             if (buttonToRemove) {
                 layout->removeWidget(buttonToRemove);
                 buttonToRemove->deleteLater();
                 schoolDataBase.deletePerson(selectedPerson);
             }
 
+            // Clear the textboxes and reset
             selectedPerson = nullptr;
-
             firstNameBox->clear();
             lastNameBox->clear();
             addressBox->clear();
@@ -330,7 +325,9 @@ int main(int argc, char *argv[]) {
             cancelButton->hide();
         }
     });
+    removeButton->hide();
 
+    // Connect methods to the cancel button (it just clears out the textboxes and resets the ui)
     QObject::connect(cancelButton, &QPushButton::clicked, [=]() mutable {
         firstNameBox->clear();
         lastNameBox->clear();
@@ -344,22 +341,23 @@ int main(int argc, char *argv[]) {
         removeButton->hide();
         cancelButton->hide();
     });
-
     cancelButton->hide();
-    removeButton->hide();
 
+    // Connect methods to the teacher radioButton whenever its toggled
     QObject::connect(teacherButton, &QRadioButton::toggled, [=, &schoolDataBase, &selectedPerson](bool checked) mutable{
+        // If it was checked by code (not manually), don't do anything
         if (!checked) return;
 
+        // If it was the user who changed a student to a teacher, update that person's information
         if (selectedPerson != nullptr && typeid(*selectedPerson) == typeid(Student)) {
             std::string newId = "C" + selectedPerson->getId().substr(1, 5);
-            std::cout << newId << " " << selectedPerson->getId() << std::endl;
             Person* newTeacher = new Teacher(selectedPerson->getFirstName(), selectedPerson->getLastName(), selectedPerson->getAddress(), "English", newId);
             schoolDataBase.addPerson(newTeacher);
             schoolDataBase.deletePerson(selectedPerson);
             selectedPerson = newTeacher;
         }
 
+        // Reset the UI
         teachableLabel->setText("Teachable");
         teachableSelection->show();
         gradeSelection->hide();
@@ -368,6 +366,7 @@ int main(int argc, char *argv[]) {
         lateLabel->hide();
         lateTextBox->hide();
 
+        // Put the new information from that person
         if (selectedPerson != nullptr) {
             Teacher* currentTeacher = dynamic_cast<Teacher *>(selectedPerson);
             teachableSelection->setCurrentText(QString::fromStdString(currentTeacher->getTeachables()));
@@ -375,18 +374,21 @@ int main(int argc, char *argv[]) {
         }
     });
 
+    // Connect methods to the student radioButton whenever its toggled
     QObject::connect(studentButton, &QRadioButton::toggled, [=, &schoolDataBase, &selectedPerson](bool checked) mutable {
+        // If it was checked by code (not manually), don't do anything
         if (!checked) return;
 
+        // If it was the user who changed a student to a teacher, update that person's information
         if (selectedPerson != nullptr && typeid(*selectedPerson) == typeid(Teacher)) {
             std::string newId = "S" + selectedPerson->getId().substr(1) + "0000";
-            std::cout << newId << " " << selectedPerson->getId() << std::endl;
             Person* newStudent = new Student(selectedPerson->getFirstName(), selectedPerson->getLastName(), selectedPerson->getAddress(), 9, newId);
             schoolDataBase.addPerson(newStudent);
             schoolDataBase.deletePerson(selectedPerson);
             selectedPerson = newStudent;
         }
 
+        // Reset the UI
         teachableLabel->setText("Grade");
         gradeSelection->show();
         teachableSelection->hide();
@@ -395,6 +397,7 @@ int main(int argc, char *argv[]) {
         lateLabel->show();
         lateTextBox->show();
 
+        // Put the new information from that person
         if (selectedPerson != nullptr) {
             Student* currentStudent = dynamic_cast<Student *>(selectedPerson);
             gradeSelection->setCurrentIndex(currentStudent->getGrade() - 9);
@@ -403,11 +406,10 @@ int main(int argc, char *argv[]) {
         }
     });
 
+    // Whenever student radiobutton is toggled, the lateButton appears
+    // This connects it to its method, which is simply to update the student's numOfLates
     QObject::connect(lateButton, &QPushButton::clicked, [=, &schoolDataBase, &selectedPerson]() mutable {
         Student* s = dynamic_cast<Student *>(selectedPerson);
-
-        std::cout << ((selectedPerson == nullptr) ? "null" : "not null") << std::endl;
-
         if (s) {
             s->addLate();
             lateTextBox->setText(QString::number(s->getNumLates()));
